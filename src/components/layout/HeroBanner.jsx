@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import HeroSlide from './HeroSlide';
 import { HERO_SLIDES } from './heroSlides';
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 3000;
 const TOTAL = HERO_SLIDES.length;
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -14,7 +14,7 @@ function HeroBanner() {
 
   const goTo = (index) => setActiveIndex((index + TOTAL) % TOTAL);
 
-  // Auto-advance, but never while the visitor is hovering or focused inside, or has paused it.
+  // Auto-advance every 3 seconds, but never while the visitor is hovering or focused inside, or has paused it.
   useEffect(() => {
     if (!isPlaying || isInteracting) return undefined;
     const timerId = setInterval(() => setActiveIndex((index) => (index + 1) % TOTAL), AUTOPLAY_MS);

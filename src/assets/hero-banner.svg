@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" fill="none">
+  <circle cx="300" cy="220" r="200" fill="#fff" fill-opacity=".12"/>
+  <circle cx="300" cy="220" r="140" fill="#fff" fill-opacity=".12"/>
+
+  <!-- gift box -->
+  <rect x="86" y="268" width="130" height="110" rx="10" fill="#ffc107"/>
+  <rect x="86" y="268" width="130" height="30" rx="8" fill="#ffca2c"/>
+  <rect x="141" y="268" width="20" height="110" fill="#dc3545"/>
+  <path d="M151 268c-22-36-52-22-38-4 8 10 38 4 38 4zm0 0c22-36 52-22 38-4-8 10-38 4-38 4z" fill="#dc3545"/>
+
+  <!-- shopping bag -->
+  <path d="M215 150h190l22 238a14 14 0 0 1-14 15H207a14 14 0 0 1-14-15z" fill="#fff"/>
+  <path d="M252 150v-22a53 53 0 0 1 106 0v22" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+  <path d="M252 150v-22a53 53 0 0 1 106 0v22" stroke="#0a58ca" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="252" cy="190" r="9" fill="#0d6efd"/>
+  <circle cx="358" cy="190" r="9" fill="#0d6efd"/>
+  <path d="M262 290l30 32 62-70" stroke="#198754" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- phone -->
+  <rect x="418" y="214" width="96" height="164" rx="16" fill="#212529"/>
+  <rect x="428" y="230" width="76" height="120" rx="6" fill="#6ea8fe"/>
+  <rect x="438" y="242" width="56" height="36" rx="4" fill="#fff" fill-opacity=".85"/>
+  <rect x="438" y="288" width="40" height="8" rx="4" fill="#fff" fill-opacity=".85"/>
+  <rect x="438" y="304" width="30" height="8" rx="4" fill="#fff" fill-opacity=".6"/>
+  <circle cx="466" cy="364" r="6" fill="#495057"/>
+
+  <!-- price tag -->
+  <g transform="rotate(-14 470 120)">
+    <path d="M410 90h92a8 8 0 0 1 8 8v44a8 8 0 0 1-8 8h-92l-24-30z" fill="#dc3545"/>
+    <circle cx="410" cy="120" r="7" fill="#fff"/>
+    <text x="436" y="130" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#fff">-30%</text>
+  </g>
+
+  <!-- sparkles -->
+  <path d="M96 150l7 18 18 7-18 7-7 18-7-18-18-7 18-7z" fill="#fff"/>
+  <path d="M540 300l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#fff" fill-opacity=".8"/>
+  <path d="M170 70l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#fff" fill-opacity=".8"/>
+</svg>

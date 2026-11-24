@@ -1,67 +1,70 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { calculateDiscountedPrice } from '../utils/formatCurrency';
+import { isProductSummary, toProductSummary } from '../utils/product';
+import { loadStored, saveStored } from '../utils/storage';
 import { useToast } from './ToastContext';
 
 const CartContext = createContext(null);
 
-function loadCartFromStorage() {
-  try {
-    const stored = localStorage.getItem('shophub-cart');
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
+const STORAGE_KEY = 'shophub-cart';
+
+const isCartItem = (item) => isProductSummary(item) && Number.isInteger(item.quantity) && item.quantity >= 1;
+const isCartList = (value) => Array.isArray(value) && value.every(isCartItem);
+
+const stockLimit = (item) => (Number.isFinite(item.stock) ? item.stock : Infinity);
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState(loadCartFromStorage);
+  const [cartItems, setCartItems] = useState(() => loadStored(STORAGE_KEY, [], isCartList));
   const { showToast } = useToast();
 
   useEffect(() => {
-    localStorage.setItem('shophub-cart', JSON.stringify(cartItems));
+    saveStored(STORAGE_KEY, cartItems);
   }, [cartItems]);
 
   const addToCart = (product, quantity = 1) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item,
-        );
-      }
-      return [...prevItems, { ...product, quantity }];
-    });
+    const existingItem = cartItems.find((item) => item.id === product.id);
+    const limit = stockLimit(product);
+    const nextQuantity = Math.min((existingItem?.quantity ?? 0) + quantity, limit);
+
+    if (nextQuantity === existingItem?.quantity) {
+      showToast(`You already have all ${limit} available in your cart`, 'warning');
+      return;
+    }
+
+    setCartItems((previous) =>
+      existingItem
+        ? previous.map((item) => (item.id === product.id ? { ...item, quantity: nextQuantity } : item))
+        : [...previous, { ...toProductSummary(product), quantity: nextQuantity }],
+    );
     showToast(`${product.title} added to cart`, 'success');
   };
 
   const removeFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+    setCartItems((previous) => previous.filter((item) => item.id !== productId));
   };
 
   const updateQuantity = (productId, quantity) => {
-    if (quantity < 1) return;
-    setCartItems((prevItems) =>
-      prevItems.map((item) => (item.id === productId ? { ...item, quantity } : item)),
+    setCartItems((previous) =>
+      previous.map((item) =>
+        item.id === productId ? { ...item, quantity: Math.min(Math.max(1, quantity), stockLimit(item)) } : item,
+      ),
     );
   };
 
   const clearCart = () => setCartItems([]);
-
-  const isInCart = (productId) => cartItems.some((item) => item.id === productId);
 
   const totalItems = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
     [cartItems],
   );
 
-  const totalPrice = useMemo(
-    () =>
-      cartItems.reduce((sum, item) => {
-        const unitPrice = calculateDiscountedPrice(item.price, item.discountPercentage);
-        return sum + unitPrice * item.quantity;
-      }, 0),
-    [cartItems],
-  );
+  const totalPrice = useMemo(() => {
+    const total = cartItems.reduce(
+      (sum, item) => sum + calculateDiscountedPrice(item.price, item.discountPercentage) * item.quantity,
+      0,
+    );
+    return Math.round(total * 100) / 100;
+  }, [cartItems]);
 
   const value = {
     cartItems,
@@ -69,7 +72,6 @@ export function CartProvider({ children }) {
     removeFromCart,
     updateQuantity,
     clearCart,
-    isInCart,
     totalItems,
     totalPrice,
   };

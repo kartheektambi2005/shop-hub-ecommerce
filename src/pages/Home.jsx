@@ -59,9 +59,7 @@ function Home() {
         <section className="bg-body-tertiary py-5">
           <div className="container">
             <h3 className="fw-bold mb-4">Trending Now</h3>
-            <div className="row g-4">
-              <ProductGrid products={trendingProducts} isLoading={false} />
-            </div>
+            <ProductGrid products={trendingProducts} isLoading={false} />
           </div>
         </section>
       )}

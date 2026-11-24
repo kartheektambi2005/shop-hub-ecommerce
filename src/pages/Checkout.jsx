@@ -1,7 +1,11 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { formatCurrency } from '../utils/formatCurrency';
+import { useForm } from '../hooks/useForm';
+import FormField from '../components/common/FormField';
+import OrderSummary from '../components/cart/OrderSummary';
+import { calculateDiscountedPrice } from '../utils/formatCurrency';
+import { getOrderTotals } from '../utils/orderTotals';
+import { validateCheckout } from '../utils/validators';
 
 const INITIAL_FORM = {
   fullName: '',
@@ -14,162 +18,119 @@ const INITIAL_FORM = {
   cvv: '',
 };
 
+function createOrderNumber() {
+  return `SH-${Math.floor(100000 + Math.random() * 900000)}`;
+}
+
 function Checkout() {
   const { cartItems, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(INITIAL_FORM);
-  const [errors, setErrors] = useState({});
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const placeOrder = (values) => {
+    // Card details are validated but deliberately never stored or passed on.
+    const order = {
+      number: createOrderNumber(),
+      shipTo: { name: values.fullName.trim(), city: values.city.trim(), country: values.country.trim() },
+      items: cartItems.map((item) => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+        unitPrice: calculateDiscountedPrice(item.price, item.discountPercentage),
+      })),
+      totals: getOrderTotals(totalPrice),
+    };
+    clearCart();
+    navigate('/order-success', { state: { order }, replace: true });
   };
 
-  const validate = () => {
-    const newErrors = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!value.trim()) newErrors[key] = 'This field is required';
-    });
-    return newErrors;
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length === 0) {
-      clearCart();
-      navigate('/order-success');
-    }
-  };
+  const { values, errors, handleChange, handleSubmit } = useForm(INITIAL_FORM, validateCheckout, placeOrder);
 
   if (cartItems.length === 0) {
     return (
       <div className="container py-5 text-center">
-        <p className="text-body-secondary">Your cart is empty. Add products before checking out.</p>
+        <h1 className="h3">Nothing to check out</h1>
+        <p className="text-body-secondary">Your cart is empty. Add some products first.</p>
+        <Link to="/products" className="btn btn-primary px-4">
+          Browse Products
+        </Link>
       </div>
     );
   }
 
+  const field = (name, label, props = {}) => (
+    <FormField
+      label={label}
+      name={name}
+      value={values[name]}
+      onChange={handleChange}
+      error={errors[name]}
+      {...props}
+    />
+  );
+
   return (
     <div className="container py-4">
-      <h2 className="fw-bold mb-4">Checkout</h2>
-      <form onSubmit={handleSubmit}>
+      <h1 className="h2 fw-bold mb-3">Checkout</h1>
+      <div className="alert alert-info" role="note">
+        <i className="bi bi-info-circle me-2" aria-hidden="true" />
+        This is a demo store. No payment is taken, so please don&apos;t enter a real card. Try the test
+        number <strong>4242 4242 4242 4242</strong> with any future expiry date.
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate>
         <div className="row g-4">
           <div className="col-lg-8">
-            <div className="card border-0 shadow-sm p-4 mb-4">
-              <h5 className="fw-bold mb-3">Shipping Address</h5>
+            <fieldset className="card border-0 shadow-sm p-4 mb-4">
+              <legend className="h5 fw-bold mb-3">Shipping Address</legend>
               <div className="row g-3">
-                <div className="col-12">
-                  <label className="form-label">Full Name</label>
-                  <input
-                    className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                  />
-                  {errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>}
-                </div>
-                <div className="col-12">
-                  <label className="form-label">Street Address</label>
-                  <input
-                    className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                  />
-                  {errors.address && <div className="invalid-feedback">{errors.address}</div>}
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">City</label>
-                  <input
-                    className={`form-control ${errors.city ? 'is-invalid' : ''}`}
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                  />
-                  {errors.city && <div className="invalid-feedback">{errors.city}</div>}
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Postal Code</label>
-                  <input
-                    className={`form-control ${errors.postalCode ? 'is-invalid' : ''}`}
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                  />
-                  {errors.postalCode && <div className="invalid-feedback">{errors.postalCode}</div>}
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Country</label>
-                  <input
-                    className={`form-control ${errors.country ? 'is-invalid' : ''}`}
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                  />
-                  {errors.country && <div className="invalid-feedback">{errors.country}</div>}
-                </div>
+                {field('fullName', 'Full Name', { className: 'col-12', autoComplete: 'name', maxLength: 60 })}
+                {field('address', 'Street Address', {
+                  className: 'col-12',
+                  autoComplete: 'street-address',
+                  maxLength: 100,
+                })}
+                {field('city', 'City', { className: 'col-md-4', autoComplete: 'address-level2', maxLength: 50 })}
+                {field('postalCode', 'Postal Code', {
+                  className: 'col-md-4',
+                  autoComplete: 'postal-code',
+                  maxLength: 10,
+                })}
+                {field('country', 'Country', { className: 'col-md-4', autoComplete: 'country-name', maxLength: 56 })}
               </div>
-            </div>
+            </fieldset>
 
-            <div className="card border-0 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Payment Details</h5>
+            <fieldset className="card border-0 shadow-sm p-4">
+              <legend className="h5 fw-bold mb-3">Payment Details</legend>
               <div className="row g-3">
-                <div className="col-12">
-                  <label className="form-label">Card Number</label>
-                  <input
-                    className={`form-control ${errors.cardNumber ? 'is-invalid' : ''}`}
-                    name="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    value={formData.cardNumber}
-                    onChange={handleChange}
-                  />
-                  {errors.cardNumber && <div className="invalid-feedback">{errors.cardNumber}</div>}
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Expiry Date</label>
-                  <input
-                    className={`form-control ${errors.expiry ? 'is-invalid' : ''}`}
-                    name="expiry"
-                    placeholder="MM/YY"
-                    value={formData.expiry}
-                    onChange={handleChange}
-                  />
-                  {errors.expiry && <div className="invalid-feedback">{errors.expiry}</div>}
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">CVV</label>
-                  <input
-                    className={`form-control ${errors.cvv ? 'is-invalid' : ''}`}
-                    name="cvv"
-                    value={formData.cvv}
-                    onChange={handleChange}
-                  />
-                  {errors.cvv && <div className="invalid-feedback">{errors.cvv}</div>}
-                </div>
+                {field('cardNumber', 'Card Number', {
+                  className: 'col-12',
+                  placeholder: '4242 4242 4242 4242',
+                  inputMode: 'numeric',
+                  autoComplete: 'cc-number',
+                  maxLength: 23,
+                })}
+                {field('expiry', 'Expiry Date', {
+                  className: 'col-md-6',
+                  placeholder: 'MM/YY',
+                  autoComplete: 'cc-exp',
+                  maxLength: 5,
+                })}
+                {field('cvv', 'CVV', {
+                  className: 'col-md-6',
+                  inputMode: 'numeric',
+                  autoComplete: 'cc-csc',
+                  maxLength: 4,
+                })}
               </div>
-            </div>
+            </fieldset>
           </div>
 
           <div className="col-lg-4">
-            <div className="card border-0 shadow-sm p-4">
-              <h5 className="fw-bold mb-3">Order Summary</h5>
-              {cartItems.map((item) => (
-                <div className="d-flex justify-content-between small mb-2" key={item.id}>
-                  <span>{item.title} &times; {item.quantity}</span>
-                  <span>{formatCurrency(item.price * item.quantity)}</span>
-                </div>
-              ))}
-              <hr />
-              <div className="d-flex justify-content-between fw-bold fs-5 mb-3">
-                <span>Total</span>
-                <span>{formatCurrency(totalPrice)}</span>
-              </div>
-              <button type="submit" className="btn btn-primary btn-lg">
+            <OrderSummary items={cartItems} subtotal={totalPrice} showItems>
+              <button type="submit" className="btn btn-primary btn-lg w-100">
                 Place Order
               </button>
-            </div>
+            </OrderSummary>
           </div>
         </div>
       </form>

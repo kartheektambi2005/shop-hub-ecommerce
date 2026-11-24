@@ -1,44 +1,35 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { isProductSummary, toProductSummary } from '../utils/product';
+import { loadStored, saveStored } from '../utils/storage';
 import { useToast } from './ToastContext';
 
 const WishlistContext = createContext(null);
 
-function loadWishlistFromStorage() {
-  try {
-    const stored = localStorage.getItem('shophub-wishlist');
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
+const STORAGE_KEY = 'shophub-wishlist';
+
+const isWishlist = (value) => Array.isArray(value) && value.every(isProductSummary);
 
 export function WishlistProvider({ children }) {
-  const [wishlistItems, setWishlistItems] = useState(loadWishlistFromStorage);
+  const [wishlistItems, setWishlistItems] = useState(() => loadStored(STORAGE_KEY, [], isWishlist));
   const { showToast } = useToast();
 
   useEffect(() => {
-    localStorage.setItem('shophub-wishlist', JSON.stringify(wishlistItems));
+    saveStored(STORAGE_KEY, wishlistItems);
   }, [wishlistItems]);
 
   const isInWishlist = (productId) => wishlistItems.some((item) => item.id === productId);
 
   const toggleWishlist = (product) => {
-    setWishlistItems((prevItems) => {
-      const alreadySaved = prevItems.find((item) => item.id === product.id);
-      if (alreadySaved) {
-        showToast(`${product.title} removed from wishlist`, 'secondary');
-        return prevItems.filter((item) => item.id !== product.id);
-      }
+    if (isInWishlist(product.id)) {
+      setWishlistItems((previous) => previous.filter((item) => item.id !== product.id));
+      showToast(`${product.title} removed from wishlist`, 'secondary');
+    } else {
+      setWishlistItems((previous) => [...previous, toProductSummary(product)]);
       showToast(`${product.title} added to wishlist`, 'success');
-      return [...prevItems, product];
-    });
+    }
   };
 
-  const removeFromWishlist = (productId) => {
-    setWishlistItems((prevItems) => prevItems.filter((item) => item.id !== productId));
-  };
-
-  const value = { wishlistItems, isInWishlist, toggleWishlist, removeFromWishlist };
+  const value = { wishlistItems, isInWishlist, toggleWishlist };
 
   return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
 }

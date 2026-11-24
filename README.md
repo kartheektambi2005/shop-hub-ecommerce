@@ -21,7 +21,7 @@ _Coming soon._
 
 ## Tech stack
 
-React 19 · Vite 8 · React Router 7 · Bootstrap 5 · [DummyJSON](https://dummyjson.com) API · oxlint · Netlify
+React 19 · Vite 8 · React Router 7 · Bootstrap 5 · [DummyJSON](https://dummyjson.com) API · oxlint · Vercel / Netlify
 
 ## Getting started
 
@@ -43,9 +43,14 @@ npm run dev
 
 **Optional config:** copy `.env.example` to `.env` to set `VITE_API_BASE_URL`. `VITE_` values are public, so never put secrets in them.
 
-## Deploy to Netlify
+## Deploy
 
-Build command `npm run build`, publish directory `dist`. The files `public/_redirects` and `public/_headers` handle client-side routing and security headers.
+Build command `npm run build`, output directory `dist`. Both hosts are configured, so refreshing a route like `/products` works and the security headers are applied.
+
+- **Vercel:** import the GitHub repo. Vercel detects Vite, and `vercel.json` adds the SPA rewrite and headers.
+- **Netlify:** `public/_redirects` and `public/_headers` do the same job.
+
+If you change the CSP, update both `vercel.json` and `public/_headers`.
 
 ## Notes
 

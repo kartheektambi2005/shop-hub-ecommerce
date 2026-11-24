@@ -22,7 +22,7 @@ A responsive e-commerce storefront built with React, Vite and Bootstrap. Browse 
 
 **Shopping**
 
-- Home page with category shortcuts and featured, trending and best-selling sections
+- Home page with a four-slide hero carousel (auto-rotates, pausable, keyboard and reduced-motion friendly), category shortcuts and featured, trending and best-selling sections
 - Product list with debounced search, category / brand / price / rating / stock filters, sorting and pagination
 - Search, category, sort and page live in the URL, so any view can be bookmarked, shared or refreshed
 - Product detail pages (`/products/:id`) with an image gallery, stock-aware quantity picker, wishlist button and related products

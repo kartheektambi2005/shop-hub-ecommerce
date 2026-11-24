@@ -4,7 +4,7 @@ const CATEGORY_ICONS = {
   smartphones: 'bi-phone',
   laptops: 'bi-laptop',
   fragrances: 'bi-flower1',
-  skincare: 'bi-droplet',
+  'skin-care': 'bi-droplet',
   groceries: 'bi-basket',
   'home-decoration': 'bi-house-heart',
   furniture: 'bi-lamp',

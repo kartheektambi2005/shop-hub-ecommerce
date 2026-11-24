@@ -1,34 +1,90 @@
-import { Link } from 'react-router-dom';
-import heroBanner from '../../assets/hero-banner.svg';
+import { useEffect, useState } from 'react';
+import HeroSlide from './HeroSlide';
+import { HERO_SLIDES } from './heroSlides';
+
+const AUTOPLAY_MS = 6000;
+const TOTAL = HERO_SLIDES.length;
+
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function HeroBanner() {
-  return (
-    <section className="bg-primary bg-gradient text-white overflow-hidden">
-      <div className="container py-5">
-        <div className="row align-items-center py-4 g-4">
-          <div className="col-lg-6">
-            <span className="badge bg-white text-primary mb-3">New Season Arrivals</span>
-            <h1 className="display-4 fw-bold mb-3">Everything you need, one cart away.</h1>
-            <p className="fs-5 mb-4">
-              Electronics, fashion, beauty and home essentials — sourced from trusted brands
-              and delivered to your door.
-            </p>
-            <Link to="/products" className="btn btn-light btn-lg fw-semibold px-4">
-              Shop Now
-            </Link>
-          </div>
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(() => !prefersReducedMotion());
+  const [isInteracting, setIsInteracting] = useState(false);
 
-          <div className="col-lg-6 d-none d-lg-block">
-            {/* Decorative: the heading and button already say everything the image does. */}
-            <img
-              src={heroBanner}
-              alt=""
-              width="600"
-              height="440"
-              className="img-fluid"
-              fetchPriority="high"
+  const goTo = (index) => setActiveIndex((index + TOTAL) % TOTAL);
+
+  // Auto-advance, but never while the visitor is hovering or focused inside, or has paused it.
+  useEffect(() => {
+    if (!isPlaying || isInteracting) return undefined;
+    const timerId = setInterval(() => setActiveIndex((index) => (index + 1) % TOTAL), AUTOPLAY_MS);
+    return () => clearInterval(timerId);
+  }, [isPlaying, isInteracting]);
+
+  const isAutoRotating = isPlaying && !isInteracting;
+
+  return (
+    <section
+      className="hero-carousel"
+      aria-roledescription="carousel"
+      aria-label="Featured promotions"
+      onMouseEnter={() => setIsInteracting(true)}
+      onMouseLeave={() => setIsInteracting(false)}
+      onFocus={() => setIsInteracting(true)}
+      onBlur={() => setIsInteracting(false)}
+    >
+      <h1 className="visually-hidden">ShopHub: electronics, fashion, beauty and home essentials</h1>
+
+      <div className="hero-stage" aria-live={isAutoRotating ? 'off' : 'polite'}>
+        {HERO_SLIDES.map((slide, index) => (
+          <HeroSlide
+            key={slide.id}
+            slide={slide}
+            position={index + 1}
+            total={TOTAL}
+            isActive={index === activeIndex}
+            isFirst={index === 0}
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        className="hero-arrow hero-arrow--prev btn btn-light rounded-circle shadow d-none d-md-flex"
+        onClick={() => goTo(activeIndex - 1)}
+        aria-label="Previous slide"
+      >
+        <i className="bi bi-chevron-left" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="hero-arrow hero-arrow--next btn btn-light rounded-circle shadow d-none d-md-flex"
+        onClick={() => goTo(activeIndex + 1)}
+        aria-label="Next slide"
+      >
+        <i className="bi bi-chevron-right" aria-hidden="true" />
+      </button>
+
+      <div className="hero-controls d-flex align-items-center gap-2">
+        <button
+          type="button"
+          className="btn btn-sm btn-light rounded-circle hero-pause"
+          onClick={() => setIsPlaying((playing) => !playing)}
+          aria-label={isPlaying ? 'Pause slide rotation' : 'Start slide rotation'}
+        >
+          <i className={`bi ${isPlaying ? 'bi-pause-fill' : 'bi-play-fill'}`} aria-hidden="true" />
+        </button>
+        <div className="d-flex">
+          {HERO_SLIDES.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              className={`hero-dot ${index === activeIndex ? 'is-active' : ''}`}
+              onClick={() => goTo(index)}
+              aria-label={`Go to slide ${index + 1}: ${slide.badge}`}
+              aria-current={index === activeIndex ? 'true' : undefined}
             />
-          </div>
+          ))}
         </div>
       </div>
     </section>

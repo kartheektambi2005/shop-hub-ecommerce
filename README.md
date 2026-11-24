@@ -22,7 +22,8 @@ A responsive e-commerce storefront built with React, Vite and Bootstrap. Browse 
 
 **Shopping**
 
-- Home page with a four-slide hero carousel (auto-rotates, pausable, keyboard and reduced-motion friendly), category shortcuts and featured, trending and best-selling sections
+- Home page with a four-slide hero carousel, category shortcuts, and featured, trending and best-selling sections
+- Hero carousel: each slide shows for 3 seconds, then moves on automatically. It pauses on hover, keyboard focus or the pause button, has arrows and dot indicators, and starts paused for visitors who prefer reduced motion
 - Product list with debounced search, category / brand / price / rating / stock filters, sorting and pagination
 - Search, category, sort and page live in the URL, so any view can be bookmarked, shared or refreshed
 - Product detail pages (`/products/:id`) with an image gallery, stock-aware quantity picker, wishlist button and related products
@@ -99,11 +100,26 @@ Two files in `public/` are copied into the build and configure Netlify:
 - `_redirects` sends every path to `index.html`, so refreshing or opening `/products` directly works with client-side routing
 - `_headers` sets the security headers and long-term caching for hashed assets
 
+## Routes
+
+| Path | Page | Notes |
+| --- | --- | --- |
+| `/` | Home | Hero carousel, categories, featured products |
+| `/products` | Product list | Query params: `q`, `category`, `sort`, `page` |
+| `/products/:id` | Product details | Shows a 404 view for unknown ids |
+| `/cart` | Cart | |
+| `/wishlist` | Wishlist | |
+| `/checkout` | Checkout | Requires login (demo) |
+| `/order-success` | Order confirmation | Requires login; redirects home if no order was just placed |
+| `/login`, `/register` | Demo authentication | |
+| `*` | 404 | Rendered inside the app, not by the server |
+
 ## Project structure
 
 ```
 public/            favicon, _redirects, _headers
 src/
+  assets/          hero carousel illustrations (SVG)
   components/      small reusable pieces, grouped by area
     auth/ cart/ common/ filters/ layout/ product/
   context/         theme, toast, auth, cart and wishlist providers
@@ -113,9 +129,24 @@ src/
   utils/           validators, price and total helpers, filtering, storage
 ```
 
+## Quality checks
+
+The project has no unit-test suite. Instead, each phase of the work was checked as follows:
+
+- `npm run build` and `npm run lint` pass with no errors or warnings
+- `npm audit` reports 0 vulnerabilities
+- Scripted browser runs (headless Chrome) covered the cart, login redirect, checkout validation, order confirmation, register form and the hero carousel timing
+- The app was served with the real `_headers` file and produced no Content-Security-Policy violations
+- An axe-core accessibility scan found no violations on the home, products, product detail, cart, wishlist, login, register and 404 pages in both light and dark themes
+
+The `_redirects` file is only applied by Netlify, so check that refreshing `/products` works after your first deploy.
+
 ## Notes and limitations
 
 - Product data is a public sample API, so some images or products may change over time.
 - Login and registration are a front-end demo only: any well-formed email works, and the password is validated but discarded.
 - Checkout never contacts a server. The test card `4242 4242 4242 4242` with any future expiry passes validation.
-- There is no automated test suite yet; behaviour was verified with manual and scripted browser checks.
+- There is no automated test suite yet (see Quality checks above). Adding Vitest and React Testing Library for the validators, cart logic and checkout flow would be a good next step.
+- The hero illustrations are placeholder artwork; replace them in `src/assets/` and `src/components/layout/heroSlides.js`.
+
+&copy; Kartheek Tambi. All rights reserved.

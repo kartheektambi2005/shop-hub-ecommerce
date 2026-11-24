@@ -14,7 +14,8 @@ export async function fetchAllProducts(limit = 0) {
 }
 
 export async function fetchProductById(id) {
-  const response = await fetch(`${BASE_URL}/products/${id}`);
+  const response = await fetch(`${BASE_URL}/products/${encodeURIComponent(id)}`);
+  if (response.status === 404) return null;
   return handleResponse(response);
 }
 
@@ -24,13 +25,7 @@ export async function fetchCategories() {
 }
 
 export async function fetchProductsByCategory(category) {
-  const response = await fetch(`${BASE_URL}/products/category/${category}`);
-  const data = await handleResponse(response);
-  return data.products;
-}
-
-export async function searchProducts(query) {
-  const response = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(query)}`);
+  const response = await fetch(`${BASE_URL}/products/category/${encodeURIComponent(category)}`);
   const data = await handleResponse(response);
   return data.products;
 }

@@ -1,10 +1,4 @@
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'rating-desc', label: 'Highest Rated' },
-  { value: 'name-asc', label: 'Name: A to Z' },
-];
+import { SORT_OPTIONS } from '../../utils/productFilters';
 
 function SortDropdown({ value, onChange }) {
   return (

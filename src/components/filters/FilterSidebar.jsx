@@ -1,3 +1,5 @@
+import { MAX_PRICE } from '../../utils/productFilters';
+
 function FilterSidebar({
   categories,
   brands,
@@ -63,7 +65,7 @@ function FilterSidebar({
           type="range"
           className="form-range"
           min="0"
-          max="2000"
+          max={MAX_PRICE}
           step="10"
           value={filters.maxPrice}
           onChange={(event) => onFilterChange('maxPrice', Number(event.target.value))}

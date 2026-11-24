@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import QuantityStepper from '../common/QuantityStepper';
 import { useCart } from '../../context/CartContext';
 import { calculateDiscountedPrice, formatCurrency } from '../../utils/formatCurrency';
 
@@ -22,21 +23,13 @@ function CartItem({ item }) {
         <p className="fw-bold mb-0">{formatCurrency(unitPrice)}</p>
       </div>
 
-      <div className="input-group" style={{ width: '120px' }}>
-        <button
-          className="btn btn-outline-secondary btn-sm"
-          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-        >
-          -
-        </button>
-        <span className="form-control form-control-sm text-center">{item.quantity}</span>
-        <button
-          className="btn btn-outline-secondary btn-sm"
-          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-        >
-          +
-        </button>
-      </div>
+      <QuantityStepper
+        value={item.quantity}
+        onChange={(quantity) => updateQuantity(item.id, quantity)}
+        max={item.stock}
+        size="sm"
+        label={item.title}
+      />
 
       <p className="fw-bold mb-0" style={{ width: '90px' }}>
         {formatCurrency(unitPrice * item.quantity)}

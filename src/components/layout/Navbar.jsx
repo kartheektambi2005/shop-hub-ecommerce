@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 
 function Navbar() {
-  const [searchTerm, setSearchTerm] = useState('');
   const { theme, toggleTheme } = useTheme();
   const { totalItems } = useCart();
   const { wishlistItems } = useWishlist();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const currentQuery = searchParams.get('q') ?? '';
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
-    const trimmedTerm = searchTerm.trim();
-    if (trimmedTerm) {
-      navigate(`/search?q=${encodeURIComponent(trimmedTerm)}`);
+    const term = new FormData(event.currentTarget).get('q').trim();
+    if (term) {
+      navigate(`/products?q=${encodeURIComponent(term)}`);
     }
   };
 
@@ -48,13 +48,13 @@ function Navbar() {
         <div className="collapse navbar-collapse" id="mainNavbar">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <NavLink className="nav-link" to="/" end>Home</NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/products">Products</Link>
+              <NavLink className="nav-link" to="/products">Products</NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/wishlist">Wishlist</Link>
+              <NavLink className="nav-link" to="/wishlist">Wishlist</NavLink>
             </li>
           </ul>
 
@@ -67,8 +67,10 @@ function Navbar() {
                 type="search"
                 className="form-control border-start-0"
                 placeholder="Search for products, brands..."
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                key={currentQuery}
+                name="q"
+                maxLength={80}
+                defaultValue={currentQuery}
                 aria-label="Search products"
               />
             </div>

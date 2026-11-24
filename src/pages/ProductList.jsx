@@ -5,104 +5,87 @@ import { useFetch } from '../hooks/useFetch';
 import ProductGrid from '../components/product/ProductGrid';
 import FilterSidebar from '../components/filters/FilterSidebar';
 import SortDropdown from '../components/filters/SortDropdown';
+import SearchInput from '../components/filters/SearchInput';
 import Pagination from '../components/common/Pagination';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Breadcrumbs from '../components/layout/Breadcrumbs';
-
-const PRODUCTS_PER_PAGE = 12;
-
-const DEFAULT_FILTERS = {
-  category: 'all',
-  brands: [],
-  maxPrice: 2000,
-  minRating: 0,
-  inStockOnly: false,
-};
+import {
+  DEFAULT_FILTERS,
+  DEFAULT_SORT,
+  PRODUCTS_PER_PAGE,
+  SORT_OPTIONS,
+  filterProducts,
+  sortProducts,
+} from '../utils/productFilters';
 
 function ProductList() {
-  const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q')?.toLowerCase() || '';
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data: products, isLoading, error, refetch } = useFetch(() => fetchAllProducts(100), []);
+  // Search, category, sort and page live in the URL so views can be shared and bookmarked.
+  const searchQuery = searchParams.get('q') ?? '';
+  const category = searchParams.get('category') ?? 'all';
+  const sortParam = searchParams.get('sort');
+  const sortBy = SORT_OPTIONS.some((option) => option.value === sortParam) ? sortParam : DEFAULT_SORT;
+  const requestedPage = Number.parseInt(searchParams.get('page'), 10) || 1;
 
+  const { data: products, isLoading, error, refetch } = useFetch(() => fetchAllProducts(), []);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [sortBy, setSortBy] = useState('newest');
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const updateParams = (changes, { resetPage = true, replace = false } = {}) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(changes).forEach(([key, value]) => {
+      const isDefault = value === '' || value === 'all' || value === DEFAULT_SORT || value === 1;
+      if (isDefault) next.delete(key);
+      else next.set(key, value);
+    });
+    if (resetPage) next.delete('page');
+    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace });
+  };
 
   const categories = useMemo(() => {
     if (!products) return ['all'];
-    const uniqueCategories = [...new Set(products.map((product) => product.category))];
-    return ['all', ...uniqueCategories];
+    return ['all', ...new Set(products.map((product) => product.category))];
   }, [products]);
 
   const brands = useMemo(() => {
     if (!products) return [];
-    return [...new Set(products.map((product) => product.brand).filter(Boolean))];
+    return [...new Set(products.map((product) => product.brand).filter(Boolean))].sort();
   }, [products]);
 
   const handleFilterChange = (key, value) => {
-    setCurrentPage(1);
-    setFilters((prevFilters) => {
-      if (key === 'brands') {
-        const alreadySelected = prevFilters.brands.includes(value);
-        const updatedBrands = alreadySelected
-          ? prevFilters.brands.filter((brand) => brand !== value)
-          : [...prevFilters.brands, value];
-        return { ...prevFilters, brands: updatedBrands };
-      }
-      return { ...prevFilters, [key]: value };
+    if (key === 'category') {
+      updateParams({ category: value });
+      return;
+    }
+    updateParams({}); // reset to page 1
+    setFilters((previous) => {
+      if (key !== 'brands') return { ...previous, [key]: value };
+      const brandList = previous.brands.includes(value)
+        ? previous.brands.filter((brand) => brand !== value)
+        : [...previous.brands, value];
+      return { ...previous, brands: brandList };
     });
   };
 
   const handleClearFilters = () => {
     setFilters(DEFAULT_FILTERS);
-    setCurrentPage(1);
+    updateParams({ category: 'all' });
   };
 
-  const filteredProducts = useMemo(() => {
+  const visibleProducts = useMemo(() => {
     if (!products) return [];
+    return sortProducts(filterProducts(products, { searchQuery, category, filters }), sortBy);
+  }, [products, searchQuery, category, filters, sortBy]);
 
-    const filtered = products.filter((product) => {
-      const matchesSearch = searchQuery
-        ? product.title.toLowerCase().includes(searchQuery) ||
-          product.description.toLowerCase().includes(searchQuery)
-        : true;
-      const matchesCategory = filters.category === 'all' || product.category === filters.category;
-      const matchesBrand = filters.brands.length === 0 || filters.brands.includes(product.brand);
-      const discountedPrice = product.price - (product.price * product.discountPercentage) / 100;
-      const matchesPrice = discountedPrice <= filters.maxPrice;
-      const matchesRating = product.rating >= filters.minRating;
-      const matchesStock = !filters.inStockOnly || product.stock > 0;
-
-      return matchesSearch && matchesCategory && matchesBrand && matchesPrice && matchesRating && matchesStock;
-    });
-
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'price-asc':
-          return a.price - b.price;
-        case 'price-desc':
-          return b.price - a.price;
-        case 'rating-desc':
-          return b.rating - a.rating;
-        case 'name-asc':
-          return a.title.localeCompare(b.title);
-        default:
-          return b.id - a.id;
-      }
-    });
-
-    return sorted;
-  }, [products, filters, sortBy, searchQuery]);
-
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
+  const totalPages = Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE);
+  const currentPage = Math.min(requestedPage, Math.max(totalPages, 1));
+  const pageProducts = visibleProducts.slice(
     (currentPage - 1) * PRODUCTS_PER_PAGE,
     currentPage * PRODUCTS_PER_PAGE,
   );
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    updateParams({ page }, { resetPage: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -116,7 +99,7 @@ function ProductList() {
 
   return (
     <div>
-      <Breadcrumbs trail={[{ label: searchQuery ? `Search: "${searchQuery}"` : 'Products' }]} />
+      <Breadcrumbs trail={[{ label: 'Products' }]} />
 
       <div className="container py-4">
         <div className="row g-4">
@@ -124,21 +107,30 @@ function ProductList() {
             <FilterSidebar
               categories={categories}
               brands={brands}
-              filters={filters}
+              filters={{ ...filters, category }}
               onFilterChange={handleFilterChange}
               onClearFilters={handleClearFilters}
             />
           </div>
 
           <div className="col-lg-9">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <p className="text-body-secondary mb-0">
-                {isLoading ? 'Loading...' : `${filteredProducts.length} products found`}
-              </p>
-              <SortDropdown value={sortBy} onChange={setSortBy} />
+            <div className="row g-2 align-items-center mb-3">
+              <div className="col-md">
+                <SearchInput
+                  value={searchQuery}
+                  onSearch={(term) => updateParams({ q: term.trim() }, { replace: true })}
+                />
+              </div>
+              <div className="col-md-auto">
+                <SortDropdown value={sortBy} onChange={(sort) => updateParams({ sort })} />
+              </div>
             </div>
 
-            <ProductGrid products={paginatedProducts} isLoading={isLoading} />
+            <p className="text-body-secondary" role="status">
+              {isLoading ? 'Loading products...' : `${visibleProducts.length} products found`}
+            </p>
+
+            <ProductGrid products={pageProducts} isLoading={isLoading} />
 
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>

@@ -74,7 +74,7 @@ function Footer() {
         <hr className="my-4" />
 
         <p className="text-center text-body-secondary small mb-0">
-          &copy; {currentYear} ShopHub. A portfolio project built for learning.
+          &copy; {currentYear} ShopHub. All rights reserved by Kartheek Tambi.
         </p>
       </div>
     </footer>

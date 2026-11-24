@@ -1,4 +1,5 @@
-const BASE_URL = 'https://dummyjson.com';
+// Public, non-secret setting: VITE_ variables are embedded in the browser bundle.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://dummyjson.com';
 
 async function handleResponse(response) {
   if (!response.ok) {

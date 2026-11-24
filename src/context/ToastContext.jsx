@@ -23,19 +23,23 @@ export function ToastProvider({ children }) {
       <div
         className="toast-container position-fixed bottom-0 end-0 p-3"
         style={{ zIndex: 1080 }}
+        role="region"
+        aria-label="Notifications"
+        aria-live="polite"
       >
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`toast show align-items-center text-white bg-${toast.variant} border-0 mb-2`}
-            role="alert"
+            className={`toast show align-items-center text-bg-${toast.variant} border-0 mb-2`}
+            role="status"
           >
             <div className="d-flex">
               <div className="toast-body">{toast.message}</div>
               <button
                 type="button"
-                className="btn-close btn-close-white me-2 m-auto"
+                className={`btn-close ${toast.variant === 'warning' ? '' : 'btn-close-white'} me-2 m-auto`}
                 onClick={() => dismissToast(toast.id)}
+                aria-label="Dismiss notification"
               />
             </div>
           </div>

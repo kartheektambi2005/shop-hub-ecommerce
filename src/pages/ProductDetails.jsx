@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { fetchProductById, fetchProductsByCategory } from '../services/productService';
 import { useFetch } from '../hooks/useFetch';
 import Loader from '../components/common/Loader';
@@ -23,6 +24,8 @@ function ProductDetails() {
     () => (product ? fetchProductsByCategory(product.category) : Promise.resolve([])),
     [product?.category],
   );
+
+  useDocumentTitle(product ? product.title : 'Product');
 
   if (isLoading) return <Loader label="Loading product details..." />;
   if (error) return <ErrorMessage message={error} onRetry={refetch} />;

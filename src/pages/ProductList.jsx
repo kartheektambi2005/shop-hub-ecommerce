@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { fetchAllProducts } from '../services/productService';
 import { useFetch } from '../hooks/useFetch';
 import ProductGrid from '../components/product/ProductGrid';
@@ -27,6 +28,9 @@ function ProductList() {
   const sortParam = searchParams.get('sort');
   const sortBy = SORT_OPTIONS.some((option) => option.value === sortParam) ? sortParam : DEFAULT_SORT;
   const requestedPage = Number.parseInt(searchParams.get('page'), 10) || 1;
+
+  const heading = searchQuery ? `Results for "${searchQuery}"` : category === 'all' ? 'All Products' : category.replace(/-/g, ' ');
+  useDocumentTitle(heading);
 
   const { data: products, isLoading, error, refetch } = useFetch(() => fetchAllProducts(), []);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -114,6 +118,7 @@ function ProductList() {
           </div>
 
           <div className="col-lg-9">
+            <h1 className="h3 fw-bold text-capitalize mb-3">{heading}</h1>
             <div className="row g-2 align-items-center mb-3">
               <div className="col-md">
                 <SearchInput

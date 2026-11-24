@@ -15,10 +15,11 @@ function BackToTop() {
     <button
       className="btn btn-primary rounded-circle position-fixed shadow"
       style={{ bottom: '24px', right: '24px', width: '48px', height: '48px', zIndex: 1050 }}
+      type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      title="Back to top"
+      aria-label="Back to top"
     >
-      <i className="bi bi-arrow-up" />
+      <i className="bi bi-arrow-up" aria-hidden="true" />
     </button>
   );
 }

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useCart } from '../context/CartContext';
 import { useForm } from '../hooks/useForm';
 import FormField from '../components/common/FormField';
@@ -24,6 +25,7 @@ function createOrderNumber() {
 
 function Checkout() {
   const { cartItems, totalPrice, clearCart } = useCart();
+  useDocumentTitle('Checkout');
   const navigate = useNavigate();
 
   const placeOrder = (values) => {

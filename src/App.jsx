@@ -18,13 +18,21 @@ const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 
+function skipToContent(event) {
+  event.preventDefault();
+  document.getElementById('main-content')?.focus();
+}
+
 function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <ScrollToTop />
+      <a href="#main-content" className="visually-hidden-focusable btn btn-primary m-2 position-absolute" style={{ zIndex: 2000 }} onClick={skipToContent}>
+        Skip to main content
+      </a>
       <Navbar />
 
-      <main className="flex-grow-1">
+      <main id="main-content" tabIndex={-1} className="flex-grow-1">
         <Suspense fallback={<Loader label="Loading page..." />}>
           <Routes>
             <Route path="/" element={<Home />} />

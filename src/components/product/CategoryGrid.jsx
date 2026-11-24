@@ -26,7 +26,7 @@ const CATEGORY_ICONS = {
 function CategoryGrid({ categories }) {
   return (
     <section className="container py-5">
-      <h3 className="fw-bold mb-4">Shop by Category</h3>
+      <h2 className="h3 fw-bold mb-4">Shop by Category</h2>
       <div className="row g-3">
         {categories.slice(0, 12).map((category) => (
           <div className="col-6 col-md-3 col-lg-2" key={category.slug}>

@@ -21,15 +21,19 @@ function ProductCard({ product }) {
           }`}
           style={{ width: '34px', height: '34px', zIndex: 2 }}
           onClick={() => toggleWishlist(product)}
-          title="Toggle wishlist"
+          aria-pressed={wishlisted}
+          aria-label={wishlisted ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
         >
-          <i className={`bi ${wishlisted ? 'bi-heart-fill' : 'bi-heart'}`} />
+          <i className={`bi ${wishlisted ? 'bi-heart-fill' : 'bi-heart'}`} aria-hidden="true" />
         </button>
 
         <Link to={`/products/${product.id}`}>
           <img
             src={product.thumbnail}
             alt={product.title}
+            loading="lazy"
+            width="200"
+            height="200"
             className="card-img-top p-3"
             style={{ height: '200px', objectFit: 'contain' }}
           />
@@ -60,9 +64,9 @@ function ProductCard({ product }) {
           </div>
 
           {isOutOfStock ? (
-            <span className="badge bg-danger-subtle text-danger mt-1 align-self-start">Out of Stock</span>
+            <span className="badge bg-danger-subtle text-danger-emphasis mt-1 align-self-start">Out of Stock</span>
           ) : (
-            <span className="badge bg-success-subtle text-success mt-1 align-self-start">In Stock</span>
+            <span className="badge bg-success-subtle text-success-emphasis mt-1 align-self-start">In Stock</span>
           )}
 
           <button
@@ -70,7 +74,7 @@ function ProductCard({ product }) {
             disabled={isOutOfStock}
             onClick={() => addToCart(product)}
           >
-            <i className="bi bi-cart-plus me-1" />
+            <i className="bi bi-cart-plus me-1" aria-hidden="true" />
             {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
           </button>
         </div>

@@ -12,15 +12,15 @@ function FilterSidebar({
   return (
     <aside className="d-flex flex-column gap-4">
       <div className="d-flex justify-content-between align-items-center">
-        <h5 className="fw-bold mb-0">Filters</h5>
-        <button className="btn btn-sm btn-link text-decoration-none" onClick={onClearFilters}>
+        <h2 className="h5 fw-bold mb-0">Filters</h2>
+        <button type="button" className="btn btn-sm btn-link text-decoration-none" onClick={onClearFilters}>
           Clear all
         </button>
       </div>
 
       <div>
-        <h6 className="fw-semibold mb-2">Category</h6>
-        <div className="d-flex flex-column gap-1">
+        <h2 className="h6 fw-semibold mb-2" id="filter-category">Category</h2>
+        <div className="d-flex flex-column gap-1" role="radiogroup" aria-labelledby="filter-category">
           {categories.map((category) => (
             <div className="form-check" key={category}>
               <input
@@ -40,8 +40,14 @@ function FilterSidebar({
       </div>
 
       <div>
-        <h6 className="fw-semibold mb-2">Brand</h6>
-        <div className="d-flex flex-column gap-1" style={{ maxHeight: '180px', overflowY: 'auto' }}>
+        <h2 className="h6 fw-semibold mb-2" id="filter-brand">Brand</h2>
+        <div
+          className="d-flex flex-column gap-1"
+          style={{ maxHeight: '180px', overflowY: 'auto' }}
+          role="group"
+          aria-labelledby="filter-brand"
+          tabIndex={0}
+        >
           {brands.map((brand) => (
             <div className="form-check" key={brand}>
               <input
@@ -60,8 +66,11 @@ function FilterSidebar({
       </div>
 
       <div>
-        <h6 className="fw-semibold mb-2">Max Price: ${filters.maxPrice}</h6>
+        <label htmlFor="filter-max-price" className="h6 fw-semibold mb-2 d-block">
+          Max Price: ${filters.maxPrice}
+        </label>
         <input
+          id="filter-max-price"
           type="range"
           className="form-range"
           min="0"
@@ -73,8 +82,8 @@ function FilterSidebar({
       </div>
 
       <div>
-        <h6 className="fw-semibold mb-2">Minimum Rating</h6>
-        <div className="d-flex flex-column gap-1">
+        <h2 className="h6 fw-semibold mb-2" id="filter-rating">Minimum Rating</h2>
+        <div className="d-flex flex-column gap-1" role="radiogroup" aria-labelledby="filter-rating">
           {ratingOptions.map((rating) => (
             <div className="form-check" key={rating}>
               <input
@@ -94,7 +103,7 @@ function FilterSidebar({
       </div>
 
       <div>
-        <h6 className="fw-semibold mb-2">Availability</h6>
+        <h2 className="h6 fw-semibold mb-2">Availability</h2>
         <div className="form-check">
           <input
             type="checkbox"

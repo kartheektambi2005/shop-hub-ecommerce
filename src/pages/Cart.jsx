@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useCart } from '../context/CartContext';
 import CartItem from '../components/cart/CartItem';
 import OrderSummary from '../components/cart/OrderSummary';
 
 function Cart() {
   const { cartItems, totalItems, totalPrice, clearCart } = useCart();
+  useDocumentTitle('Cart');
 
   if (cartItems.length === 0) {
     return (

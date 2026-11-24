@@ -1,8 +1,10 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { formatCurrency } from '../utils/formatCurrency';
 
 function OrderSuccess() {
   const order = useLocation().state?.order;
+  useDocumentTitle('Order confirmed');
 
   // Opening this URL directly (no order was just placed) has nothing to show.
   if (!order) return <Navigate to="/" replace />;

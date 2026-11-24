@@ -12,7 +12,9 @@ function CartItem({ item }) {
       <img
         src={item.thumbnail}
         alt={item.title}
-        style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+        width="80"
+        height="80"
+        style={{ objectFit: 'contain' }}
       />
 
       <div className="flex-grow-1">
@@ -35,8 +37,13 @@ function CartItem({ item }) {
         {formatCurrency(unitPrice * item.quantity)}
       </p>
 
-      <button className="btn btn-sm btn-link text-danger" onClick={() => removeFromCart(item.id)}>
-        <i className="bi bi-trash" />
+      <button
+        type="button"
+        className="btn btn-sm btn-link text-danger-emphasis"
+        onClick={() => removeFromCart(item.id)}
+        aria-label={`Remove ${item.title} from cart`}
+      >
+        <i className="bi bi-trash" aria-hidden="true" />
       </button>
     </div>
   );

@@ -26,6 +26,12 @@ a {
   overflow: hidden;
 }
 
+/* Bootstrap's outline-danger is too dim on a dark background; use its readable emphasis tone. */
+[data-bs-theme='dark'] .btn-outline-danger {
+  --bs-btn-color: var(--bs-danger-text-emphasis);
+  --bs-btn-border-color: var(--bs-danger-text-emphasis);
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }

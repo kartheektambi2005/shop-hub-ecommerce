@@ -1,33 +1,32 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { loadStored, removeStored, saveStored } from '../utils/storage';
 
 const AuthContext = createContext(null);
 
-function loadUserFromStorage() {
-  try {
-    const stored = localStorage.getItem('shophub-user');
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
-}
+const STORAGE_KEY = 'shophub-user';
 
+const isUser = (value) =>
+  value !== null &&
+  typeof value === 'object' &&
+  typeof value.name === 'string' &&
+  typeof value.email === 'string';
+
+// Demo auth only: there is no server, so we remember who "logged in" but never keep a password.
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUserFromStorage);
+  const [user, setUser] = useState(() => loadStored(STORAGE_KEY, null, isUser));
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('shophub-user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('shophub-user');
-    }
+    if (user) saveStored(STORAGE_KEY, user);
+    else removeStored(STORAGE_KEY);
   }, [user]);
 
   const login = (email) => {
-    setUser({ email, name: email.split('@')[0] });
+    const cleanEmail = email.trim();
+    setUser({ email: cleanEmail, name: cleanEmail.split('@')[0] });
   };
 
   const register = (name, email) => {
-    setUser({ name, email });
+    setUser({ name: name.trim(), email: email.trim() });
   };
 
   const logout = () => setUser(null);

@@ -18,11 +18,13 @@ function ImageGallery({ images, title }) {
         {images.map((image, index) => (
           <button
             key={image + index}
+            type="button"
             className={`btn p-1 border rounded-2 ${activeImage === image ? 'border-primary border-2' : ''}`}
             style={{ flex: '0 0 auto' }}
             onClick={() => setActiveImage(image)}
+            aria-pressed={activeImage === image}
           >
-            <img src={image} alt={`${title} view ${index + 1}`} style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
+            <img src={image} alt={`${title} view ${index + 1}`} width="64" height="64" style={{ objectFit: 'contain' }} />
           </button>
         ))}
       </div>

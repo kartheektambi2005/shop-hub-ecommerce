@@ -1,5 +1,6 @@
 const NAME_PATTERN = /^\p{L}[\p{L}\s'.-]*$/u;
 const POSTAL_CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9\s-]{1,8}[A-Za-z0-9]$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const EXPIRY_PATTERN = /^(0[1-9]|1[0-2])\/(\d{2})$/;
 
 function validateText(value, label, { min = 1, max = 100, pattern } = {}) {
@@ -52,6 +53,21 @@ function validatePostalCode(value) {
   return POSTAL_CODE_PATTERN.test(value.trim()) ? '' : 'Enter a valid postal code';
 }
 
+function validateEmail(value) {
+  const email = value.trim();
+  if (!email) return 'Email is required';
+  if (email.length > 254 || !EMAIL_PATTERN.test(email)) return 'Enter a valid email address';
+  return '';
+}
+
+function validatePassword(value) {
+  if (!value) return 'Password is required';
+  if (value.length < 8) return 'Password must be at least 8 characters';
+  if (value.length > 128) return 'Password must be at most 128 characters';
+  if (!/[A-Za-z]/.test(value) || !/\d/.test(value)) return 'Use at least one letter and one number';
+  return '';
+}
+
 // Runs each rule and keeps only the fields that failed, in form order.
 function collectErrors(rules) {
   return Object.fromEntries(Object.entries(rules).filter(([, message]) => message));
@@ -67,5 +83,22 @@ export function validateCheckout(values) {
     cardNumber: validateCardNumber(values.cardNumber),
     expiry: validateExpiry(values.expiry),
     cvv: validateCvv(values.cvv),
+  });
+}
+
+// The demo login accepts any well-formed email, so it only checks that a password was typed.
+export function validateLogin(values) {
+  return collectErrors({
+    email: validateEmail(values.email),
+    password: values.password ? '' : 'Password is required',
+  });
+}
+
+export function validateRegistration(values) {
+  return collectErrors({
+    name: validateText(values.name, 'Full name', { min: 2, max: 60, pattern: NAME_PATTERN }),
+    email: validateEmail(values.email),
+    password: validatePassword(values.password),
+    confirmPassword: values.confirmPassword === values.password ? '' : 'Passwords do not match',
   });
 }

@@ -1,0 +1,14 @@
+# Netlify response headers.
+# The CSP is deliberately strict: scripts and styles come only from this site, data comes from
+# the DummyJSON API and product images from its CDN. If you change VITE_API_BASE_URL or the
+# image host, update connect-src and img-src to match.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://cdn.dummyjson.com; font-src 'self'; connect-src 'self' https://dummyjson.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+
+# Hashed build output never changes, so it can be cached for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

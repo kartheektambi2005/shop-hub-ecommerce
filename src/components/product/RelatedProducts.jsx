@@ -7,7 +7,7 @@ function RelatedProducts({ products, currentProductId }) {
 
   return (
     <section className="mt-5">
-      <h4 className="fw-bold mb-3">You Might Also Like</h4>
+      <h2 className="h4 fw-bold mb-3">You Might Also Like</h2>
       <div className="row g-4">
         {related.map((product) => (
           <ProductCard key={product.id} product={product} />

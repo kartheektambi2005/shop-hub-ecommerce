@@ -6,8 +6,10 @@ import ProductGrid from '../components/product/ProductGrid';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { fetchAllProducts, fetchCategories } from '../services/productService';
 import { useFetch } from '../hooks/useFetch';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 function Home() {
+  useDocumentTitle();
   const { data: products, isLoading, error, refetch } = useFetch(() => fetchAllProducts(40), []);
   const { data: rawCategories } = useFetch(() => fetchCategories(), []);
 
@@ -49,7 +51,7 @@ function Home() {
 
       <section className="container py-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3 className="fw-bold mb-0">Featured Products</h3>
+          <h2 className="h3 fw-bold mb-0">Featured Products</h2>
           <Link to="/products" className="text-decoration-none">View All &rarr;</Link>
         </div>
         <ProductGrid products={featuredProducts} isLoading={isLoading} />
@@ -58,7 +60,7 @@ function Home() {
       {trendingProducts.length > 0 && (
         <section className="bg-body-tertiary py-5">
           <div className="container">
-            <h3 className="fw-bold mb-4">Trending Now</h3>
+            <h2 className="h3 fw-bold mb-4">Trending Now</h2>
             <ProductGrid products={trendingProducts} isLoading={false} />
           </div>
         </section>
@@ -66,7 +68,7 @@ function Home() {
 
       {bestSellers.length > 0 && (
         <section className="container py-5">
-          <h3 className="fw-bold mb-4">Best Sellers</h3>
+          <h2 className="h3 fw-bold mb-4">Best Sellers</h2>
           <ProductGrid products={bestSellers} isLoading={false} />
         </section>
       )}

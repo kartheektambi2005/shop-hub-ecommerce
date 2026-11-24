@@ -8,7 +8,7 @@ function HeroBanner() {
           <div className="col-lg-7">
             <span className="badge bg-white text-primary mb-3">New Season Arrivals</span>
             <h1 className="display-4 fw-bold mb-3">Everything you need, one cart away.</h1>
-            <p className="fs-5 mb-4 opacity-75">
+            <p className="fs-5 mb-4">
               Electronics, fashion, beauty and home essentials — sourced from trusted brands
               and delivered to your door.
             </p>

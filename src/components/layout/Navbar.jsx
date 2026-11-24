@@ -27,7 +27,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top shadow-sm bg-body">
+    <nav className="navbar navbar-expand-lg sticky-top shadow-sm bg-body" aria-label="Main">
       <div className="container">
         <Link className="navbar-brand fw-bold fs-4 text-primary" to="/">
           Shop<span className="text-body">Hub</span>
@@ -60,7 +60,7 @@ function Navbar() {
 
           <form className="d-flex flex-grow-1 mx-lg-4 mb-3 mb-lg-0" onSubmit={handleSearchSubmit}>
             <div className="input-group">
-              <span className="input-group-text bg-body-secondary border-end-0">
+              <span className="input-group-text bg-body-secondary border-end-0" aria-hidden="true">
                 <i className="bi bi-search" />
               </span>
               <input
@@ -80,14 +80,18 @@ function Navbar() {
             <button
               className="btn btn-sm btn-outline-secondary rounded-circle"
               onClick={toggleTheme}
-              title="Toggle dark / light mode"
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               style={{ width: '38px', height: '38px' }}
             >
-              <i className={`bi ${theme === 'light' ? 'bi-moon-stars' : 'bi-sun'}`} />
+              <i className={`bi ${theme === 'light' ? 'bi-moon-stars' : 'bi-sun'}`} aria-hidden="true" />
             </button>
 
-            <Link to="/wishlist" className="position-relative text-body" title="Wishlist">
-              <i className="bi bi-heart fs-5" />
+            <Link
+              to="/wishlist"
+              className="position-relative text-body"
+              aria-label={`Wishlist, ${wishlistItems.length} items`}
+            >
+              <i className="bi bi-heart fs-5" aria-hidden="true" />
               {wishlistItems.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {wishlistItems.length}
@@ -95,8 +99,12 @@ function Navbar() {
               )}
             </Link>
 
-            <Link to="/cart" className="position-relative text-body" title="Shopping cart">
-              <i className="bi bi-cart3 fs-5" />
+            <Link
+              to="/cart"
+              className="position-relative text-body"
+              aria-label={`Shopping cart, ${totalItems} items`}
+            >
+              <i className="bi bi-cart3 fs-5" aria-hidden="true" />
               {totalItems > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
                   {totalItems}
@@ -109,8 +117,10 @@ function Navbar() {
                 <button
                   className="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
                   data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label={`Account menu for ${user.name}`}
                 >
-                  <i className="bi bi-person-circle" />
+                  <i className="bi bi-person-circle" aria-hidden="true" />
                   <span className="d-none d-md-inline">{user.name}</span>
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">

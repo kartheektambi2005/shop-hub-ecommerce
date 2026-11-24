@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (VITE_ values end up in the public bundle, keep real secrets out of them)
+.env
+.env.*
+!.env.example
